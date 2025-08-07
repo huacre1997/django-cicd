@@ -1,0 +1,36 @@
+name: Build and test feature branch
+on:
+  pull_request:
+    branches:
+      - dev
+    types:
+      - opened
+      - reopened
+jobs:
+  build-feature:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: pull and checkout feature branch
+        run: |
+          echo "Pulling and checking out from git repository"
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Build and test
+        run: |
+          pytest --reuse-db --ds=app.settings
