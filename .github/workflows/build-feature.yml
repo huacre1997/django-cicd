@@ -33,4 +33,4 @@ jobs:
           pip install -r requirements.txt
       - name: Build and test
         run: |
-          python manage.py test --noinput --keepdb --parallel 2 --settings=app.settings
+          pytest --reuse-db --ds=app.settings
