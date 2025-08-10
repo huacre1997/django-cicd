@@ -42,7 +42,7 @@ jobs:
 
       - name: Run pytest with coverage
         env:
-          DJANGO_SECRET_KEY: django-insecure-thgkgi&09w*og!mec)19l_bu&963o((l)u+th_cad3c8&1@pb)
+          SECRET_KEY: django-insecure-thgkgi&09w*og!mec)19l_bu&963o((l)u+th_cad3c8&1@pb)
           DEBUG: true
 
         run: |
