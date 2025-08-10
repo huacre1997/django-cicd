@@ -32,5 +32,33 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       - name: Build and test
+        env:
+          SECRET_KEY: django-insecure-thgkgi&09w*og!mec)19l_bu&963o((l)u+th_cad3c8&1@pb)
+          DEBUG: true
+
         run: |
           pytest --reuse-db --ds=app.settings
+  merge-feature-into-develop:
+    runs-on: ubuntu-latest
+    needs: build-feature
+    if: ${{ success() }}
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.base_ref }}
+          fetch-depth: 0
+      - name: Merge feature branch into develop
+        if: ${{ success() }}
+        run: |
+          git config --global user.email "huacreenciso97@gmail.com"
+          git config --global user.name "Joel"
+          git merge --no-ff --verbose origin/${{ github.event.pull_request.head.ref }} -m "Merge pull request #${{ github.event.number}}"
+      - name: Push changes
+        if: ${{ success() }}
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.base_ref }}
