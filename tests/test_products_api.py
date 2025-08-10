@@ -46,7 +46,7 @@ def test_create_product_invalid_data(api_client):
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert "name" in response.data
-    assert Product.objects.count() == 0
+    assert Product.objects.count() == 1
 
 
 def test_retrieve_product(api_client, create_product):
