@@ -53,6 +53,8 @@ jobs:
       - name: Merge feature branch into develop
         if: ${{ success() }}
         run: |
+          git config --global user.email "huacreenciso97@gmail.com"
+          git config --global user.name "Joel"
           git merge --no-ff --verbose origin/${{ github.event.pull_request.head.ref }} -m "Merge pull request #${{ github.event.number}}"
       - name: Push changes
         if: ${{ success() }}
