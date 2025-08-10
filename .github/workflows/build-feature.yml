@@ -32,6 +32,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       - name: Build and test
+        env:
+          DJANGO_SECRET_KEY: django-insecure-thgkgi&09w*og!mec)19l_bu&963o((l)u+th_cad3c8&1@pb)
+          DEBUG: true
+
         run: |
           pytest --reuse-db --ds=app.settings
   merge-feature-into-develop:

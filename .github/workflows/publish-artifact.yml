@@ -1,0 +1,77 @@
+name: Django CI with Artifacts & Wheel
+
+on:
+  repository_dispatch:
+    types: [publish-artifact-event]
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    env:
+      ARTIFACT_NAME: django-build
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Debug payload
+        run: |
+          echo ${{ github.event.client_payload.base_branch }}
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-django pytest-cov build
+
+      - name: Run pytest with coverage
+        env:
+          DJANGO_SECRET_KEY: django-insecure-thgkgi&09w*og!mec)19l_bu&963o((l)u+th_cad3c8&1@pb)
+          DEBUG: true
+
+        run: |
+          mkdir -p logs
+          pytest --cov=. --cov-report=html --cov-report=term
+        continue-on-error: true
+
+      - name: Build wheel package
+        run: |
+          python -m build --wheel --outdir dist/
+
+      - name: Upload coverage report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: django-coverage-html
+          path: htmlcov/
+          retention-days: 7
+
+      - name: Upload logs artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: django-logs
+          path: logs/
+          retention-days: 7
+
+      - name: Upload wheel artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.ARTIFACT_NAME }}-wheel
+          path: ${{ github.workspace }}/dist/*.whl
+          retention-days: 7
